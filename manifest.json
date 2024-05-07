@@ -1,0 +1,26 @@
+{
+  "name": "Poe Build Cost",
+  "description": "Poe Build Cost Calculator",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://www.pathofexile.com/"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "hello.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.poebuildcost.com/*"],
+      "js": ["contentScript.js"]
+    }
+  ]
+}
