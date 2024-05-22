@@ -7,6 +7,7 @@ const tradeSearchApi = (resultLine, resultId) => {
         method: "GET",
     }).then(response => {
          return response.json().then(r => {
+             console.log(r)
             let amount = r.result[0].listing.price.amount
             let currency = r.result[0].listing.price.currency
             let result = {"amount": amount, "currency":currency}
@@ -16,32 +17,39 @@ const tradeSearchApi = (resultLine, resultId) => {
     })
 }
 
-const parsePrice = (req) => {
-    return fetch(url, {
+const parsePrice = async (req) => {
+    const result = await fetch(url, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(req.query)
-    }).then(response => {
-        return response.json().then(r => {
+    }).then(async response => {
+        return await response.json().then(async r => {
             console.log('id', r.id)
             console.log('result', r.result[0]);
-            return tradeSearchApi(r.result[0], r.id).then( r1 => {
-                console.log(r1)
-                return tradeSearchApi(r.result[1], r.id).then((r2)=> {
-                    console.log(r2)
-                    return tradeSearchApi(r.result[2], r.id).then((r3)=> {
-                        console.log(r3)
-                        return [r.id, [r1,r2,r3]]
-                    })
+            let cnt = 0
+            let priceList = []
+            for (let line of r.result) {
+                if (cnt++ >= 3) {
+                    break
+                }
+                console.log('line', line)
+
+                await tradeSearchApi(line, r.id).then((price) => {
+                    priceList.push(price)
                 })
-            })
+            }
+            console.log("priceList", priceList)
+            if (priceList.length > 0)
+                return [r.id, priceList]
         })
     }).catch(e => {
         console.log(e)
         return e
     })
+
+    return result
 }
 
 
